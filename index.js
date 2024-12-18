@@ -11,6 +11,10 @@ app.use('/proxy/:url(*)', async (req, res) => {
             responseType: 'stream',
         });
 
+        response.headers = Object.fromEntries(
+            Object.entries(response.headers).filter(([key]) => !key.toLowerCase().includes('access-control'))
+        );
+
         if (targetUrl.endsWith('.m3u8')) {
             let m3u8Content = response.data;
 
@@ -25,8 +29,6 @@ app.use('/proxy/:url(*)', async (req, res) => {
             res.send(m3u8Content);
         } else {
             // If not .m3u8, stream .ts segments.
-            res.set('Access-Control-Allow-Origin', '*');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
             response.data.pipe(res);
         }
     } catch (error) {
