@@ -11,5 +11,16 @@
       "source": "/(.*)",
       "destination": "index.js"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)", 
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://mojime.vercel.app"
+        }
+      ]
+    }
   ]
 }
