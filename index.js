@@ -2,7 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 
-app.get("/", (_req, res) => res.send("Running reverse proxy."));
+app.get("/", (_req, res) => res.send("This is a reverse proxy for `mojime.vercel.app`."));
 
 app.use('/proxy/:url(*)', async (req, res) => {
     try {
