@@ -6,13 +6,31 @@ app.get("/", (_req, res) => res.send("Running reverse proxy."));
 
 app.use('/proxy/:url(*)', async (req, res) => {
     try {
-        const response = await axios.get(req.params.url, {
+        const targetUrl = decodeURIComponent(req.params.url);
+        const response = await axios.get(targetUrl, {
             responseType: 'stream',
         });
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
-        response.data.pipe(res);
+
+        if (targetUrl.endsWith('.m3u8')) {
+            let m3u8Content = response.data;
+
+            // Rewrite segment paths
+            const baseUrl = req.protocol + '://' + req.get('host') + '/proxy/' + encodeURIComponent(targetUrl.substring(0, targetUrl.lastIndexOf('/')));
+            m3u8Content = m3u8Content.replace(
+                /(ep\.[^\s]+)/g, // Matches segment paths like "ep.200.1709248990.7200.ts"
+                `${baseUrl}/$1`  // Prepends the proxy base URL
+            );
+
+            res.set('Content-Type', 'application/vnd.apple.mpegurl'); // Correct MIME type for .m3u8
+            res.send(m3u8Content);
+        } else {
+            // If not .m3u8, stream .ts segments.
+            res.set('Access-Control-Allow-Origin', '*');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            response.data.pipe(res);
+        }
     } catch (error) {
+        console.error('Proxy error:', error.message);
         res.status(error.response?.status || 500).send('Error fetching content');
     }
 });
