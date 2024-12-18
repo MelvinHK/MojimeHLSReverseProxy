@@ -7,15 +7,10 @@ app.get("/", (_req, res) => res.send("Running reverse proxy."));
 app.use('/proxy/:url(*)', async (req, res) => {
     try {
         const targetUrl = decodeURIComponent(req.params.url);
-        const response = await axios.get(targetUrl, {
-            responseType: 'stream',
-        });
-
-        response.headers = Object.fromEntries(
-            Object.entries(response.headers).filter(([key]) => !key.toLowerCase().includes('access-control'))
-        );
+        res.set('Access-Control-Allow-Origin', '*'); // Remove CORS
 
         if (targetUrl.endsWith('.m3u8')) {
+            const response = await axios.get(targetUrl);
             let m3u8Content = response.data;
 
             // Rewrite segment paths
@@ -29,6 +24,9 @@ app.use('/proxy/:url(*)', async (req, res) => {
             res.send(m3u8Content);
         } else {
             // If not .m3u8, stream .ts segments.
+            const response = await axios.get(targetUrl, {
+                responseType: 'stream',
+            });
             response.data.pipe(res);
         }
     } catch (error) {
