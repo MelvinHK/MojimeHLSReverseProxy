@@ -14,7 +14,7 @@ app.use('/proxy/:url(*)', async (req, res) => {
             let m3u8Content = response.data;
 
             // Rewrite segment paths
-            const baseUrl = req.protocol + '://' + req.get('host') + '/proxy/' + encodeURIComponent(targetUrl.substring(0, targetUrl.lastIndexOf('/')));
+            const baseUrl = 'https://' + req.get('host') + '/proxy/' + encodeURIComponent(targetUrl.substring(0, targetUrl.lastIndexOf('/')));
             m3u8Content = m3u8Content.replace(
                 /(ep\.[^\s]+)/g, // Matches segment paths like "ep.200.1709248990.7200.ts"
                 `${baseUrl}/$1`  // Prepends the proxy base URL
