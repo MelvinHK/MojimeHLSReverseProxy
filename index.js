@@ -4,7 +4,7 @@ const app = express();
 
 app.get("/", (_req, res) => res.send("Running reverse proxy."));
 
-app.use('/proxy/:url', async (req, res) => {
+app.use('/proxy/:url(*)', async (req, res) => {
     try {
         const response = await axios.get(req.params.url, {
             responseType: 'stream',
