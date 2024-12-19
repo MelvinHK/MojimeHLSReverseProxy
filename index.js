@@ -7,7 +7,7 @@ app.get("/", (_req, res) => res.send("This is a reverse proxy for `mojime.vercel
 app.use('/proxy/:url(*)', async (req, res) => {
     try {
         const targetUrl = decodeURIComponent(req.params.url);
-        res.set('Access-Control-Allow-Origin', '*'); // Remove CORS
+        res.set('Access-Control-Allow-Origin', 'https://mojime.vercel.app'); // Remove CORS
 
         if (targetUrl.endsWith('.m3u8')) {
             const response = await axios.get(targetUrl);
